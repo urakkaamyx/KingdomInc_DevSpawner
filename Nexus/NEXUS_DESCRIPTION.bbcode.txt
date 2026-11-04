@@ -1,0 +1,43 @@
+[b]DevSpawner - 1.1.0[/b]
+Enables Kingdom Inc's built-in Spawner as a [b]cheat[/b] node, generating items without normal production inputs.
+
+[b]Features[/b]
+[list]
+[*]Spawner is immediately available in the Resource build menu, including existing kingdoms.
+[*]Connect its output to an input that accepts a specific item; the native Spawner learns that item and generates it automatically.
+[*]The produced item's icon and name appear on the node, with a hover description.
+[*]Unset nodes show "Connect an item input".
+[*]Uses the game's native item generation and save format, including supported human/adventurer items.
+[*]Only the Spawner's hidden technology gate is enabled. Other research remains unchanged.
+[/list]
+
+[b]Requirements[/b]
+Kingdom Inc for Windows x64 using the Unity Mono runtime. Tested with the installed Unity 6000.3.27 runtime and BepInEx 5.4.23.6.
+[url=https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.6]BepInEx 5 for Windows x64[/url] is required and installed separately. Its bundled Harmony is used; no other gameplay mod is required.
+
+[b]Installation[/b]
+1. Close Kingdom Inc.
+2. Install BepInEx 5 beside KingdomInc.exe if needed.
+3. Extract this mod's ZIP into the same game folder.
+4. Confirm: BepInEx/plugins/DevSpawner/DevSpawner.dll
+5. Start the game and build Spawner from the Resource category.
+
+[b]Choosing an item[/b]
+Connect the output to an input that names one specific item, such as an ingredient input on a configured crafting node. The Spawner learns that item and starts generating it. The displayed name and icon identify its actual saved spawning type.
+
+[b]The native Spawner keeps its first selected item, including after reconnecting it or loading a save.[/b] Build a fresh Spawner to select a different item. Inputs that accept many types without specifying one cannot select an item. Normal node purchase costs still apply.
+
+[b]Updating and removal[/b]
+Close the game before replacing or deleting the DLL. Remove BepInEx/plugins/DevSpawner/DevSpawner.dll to disable it. This mod adds no custom save fields or model types. Native Spawner nodes keep their saved item but stop generating without the enabled technology, unless another mod or developer unlock supplies it. Removing the plugin does not undo items already generated.
+
+[b]Compatibility and verification[/b]
+Passed 18 checks in an isolated Unity runtime using a disposable player: native prefab/build catalog, item and adventurer generation, output-buffer limits, native save roundtrip, connection selection, item caption, tooltip and icon refresh. The rendered layout was visually checked. Existing-save gameplay, all companion plugins and Vortex deployment were not tested. Manual installation is verified. Another mod changing the same gate or Spawner display may conflict; future game updates may require an update.
+
+[b]Version 1.1.0[/b]
+First public release. Enables the native Spawner and adds the produced item's name, icon and hover description.
+
+[b]Credits[/b]
+By rockyamyx / Urakka. Kingdom Inc supplies the native Spawner and game artwork. No base-game, BepInEx or Harmony binaries are distributed. The promotional thumbnail is an AI-generated edit of the shared Kingdom Inc mod thumbnail, with the requested Cheat badge. The gallery preview renders the actual native prefabs in the isolated diagnostic runtime; it is not a screenshot of a played kingdom.
+
+[b]Troubleshooting[/b]
+Check BepInEx/LogOutput.log for DevSpawner 1.1.0 and its enabled message. Include the log, game/mod versions and the connected input's item when reporting an issue.

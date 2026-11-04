@@ -1,0 +1,1 @@
+Enables Kingdom Inc's hidden Spawner as a cheat node. Connect it to a specific item input to generate that item automatically, with the produced item's name, icon and hover description shown on the node. Requires BepInEx 5.
