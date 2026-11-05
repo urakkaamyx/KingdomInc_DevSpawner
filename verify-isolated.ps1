@@ -10,10 +10,11 @@ foreach ($name in @('KingdomInc_Data','MonoBleedingEdge','D3D12')) {
     New-Item -ItemType Junction -Path (Join-Path $runtime $name) -Value (Join-Path $gameRoot $name) | Out-Null
 }
 $bep = Join-Path $runtime 'BepInEx'
-New-Item -ItemType Directory -Path (Join-Path $bep 'plugins\DevSpawner'),(Join-Path $bep 'config') -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $bep 'plugins\DevSpawner'),(Join-Path $bep 'plugins\Foundation'),(Join-Path $bep 'config') -Force | Out-Null
 New-Item -ItemType Junction -Path (Join-Path $bep 'core') -Value (Join-Path $gameRoot 'BepInEx\core') | Out-Null
 Copy-Item -LiteralPath (Join-Path $gameRoot 'BepInEx\config\BepInEx.cfg') -Destination (Join-Path $bep 'config\BepInEx.cfg')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Verification\diagnostic-build\DevSpawner.dll') -Destination (Join-Path $bep 'plugins\DevSpawner\DevSpawner.dll')
+Copy-Item -LiteralPath (Join-Path $gameRoot 'BepInEx\plugins\Foundation\Foundation.dll') -Destination (Join-Path $bep 'plugins\Foundation\Foundation.dll')
 $logPath = Join-Path $runtime 'diagnostic.log'
 $resultFolder = Join-Path $runtime '_Mods\DevSpawner\Verification'
 $resultPath = Join-Path $resultFolder 'runtime-tests.txt'
@@ -31,6 +32,14 @@ try {
     Copy-Item -LiteralPath $logPath -Destination (Join-Path $verification 'unity-isolated.log') -Force
     Write-Output $result
     if (-not $result.StartsWith('passed=True')) { throw "Isolated diagnostic failed. See $logPath" }
+    $diagnosticDll = Join-Path $PSScriptRoot 'Verification\diagnostic-build\DevSpawner.dll'
+    $sources = @(Get-ChildItem -LiteralPath $PSScriptRoot -File | Where-Object { $_.Extension -in '.cs','.csproj' } | Sort-Object Name | ForEach-Object {
+        @{ name = $_.Name; sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
+    })
+    @{ passed = $true; version = [Diagnostics.FileVersionInfo]::GetVersionInfo($diagnosticDll).ProductVersion.Split('+')[0];
+       checks = @($result -split "`n" | Where-Object { $_.Trim() }).Count - 1;
+       diagnosticDllSha256 = (Get-FileHash -LiteralPath $diagnosticDll -Algorithm SHA256).Hash.ToLowerInvariant(); sources = $sources
+    } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $verification 'runtime-metadata.json') -Encoding utf8
     Start-Sleep -Seconds 2
 } finally {
     $owned.Refresh()

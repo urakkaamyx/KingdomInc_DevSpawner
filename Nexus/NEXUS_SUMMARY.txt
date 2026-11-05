@@ -1,1 +1,1 @@
-Enables Kingdom Inc's hidden Spawner as a cheat node. Connect it to a specific item input to generate that item automatically, with the produced item's name, icon and hover description shown on the node. Requires BepInEx 5.
+Unlock Spawner through Tech Tree > Mods, then choose any item with its + button. Search items and see gold values before selecting what to generate.

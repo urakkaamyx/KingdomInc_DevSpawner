@@ -1,15 +1,17 @@
 # DevSpawner
 
-[Nexus Mods release](https://www.nexusmods.com/kingdominc/mods/13)
+[Nexus Mods](https://www.nexusmods.com/kingdominc/mods/13) · Version 1.3.0
 
-Enables Kingdom Inc's built-in **Spawner** in the **Resource** build menu, including existing kingdoms. Connect its output to an input that accepts a specific item; the native node learns that item and generates it automatically. Ordinary node purchase costs still apply.
+Unlock Kingdom Inc's **Spawner** and generate any item without production inputs. Open **Tech Tree → Mods** and unlock **DevSpawner** for free, then build **Spawner** from the **Resource** menu. Normal building costs apply. Existing kingdoms with placed Spawners keep access automatically.
 
-Version 1.1.0 shows the generated item's icon, a name below it, and a hover description. An unset Spawner displays **Connect an item input**. The display follows the actual saved spawning type; the native node keeps that type when disconnected or reconnected.
+Click the node's **+** or selected item icon to choose what it makes. Search by item name or ID. The picker shows each item's gold value at 100% quality before shop bonuses, or **Not sellable**. The selected item's icon, name and gold value also appear on the node and its tooltip.
 
-Requires the Mono build of Kingdom Inc and BepInEx 5.x. Installed at `BepInEx/plugins/DevSpawner/DevSpawner.dll`. Restart the game after installation.
+Your selection is saved. Changing items clears pending output and keeps connected pipes. Selecting the same item keeps its pending output. An unset Spawner can also learn its item from a connected input. Close the picker, press Escape, right-click or click outside to cancel.
 
-Build from the game directory with `dotnet build _Mods/DevSpawner/DevSpawner.csproj -c Release`.
+Requires **Foundation 0.5.0 or newer** and **BepInEx 5**. With the game closed, extract the release ZIP beside `KingdomInc.exe`. The plugin belongs at `BepInEx/plugins/DevSpawner/DevSpawner.dll`. Start the game after installation.
 
-To disable, close the game and remove that DLL. Spawner nodes use the game's native save format and stop generating while the developer technology is unavailable. This plugin does not write research unlocks or enable other developer technologies.
+To update, close the game and replace that DLL. To remove, close the game and delete it. Existing Spawners keep their selected item but stop generating. Items already produced remain in your kingdom.
+
+By rockyamyx / Urakka. Promotional thumbnail uses AI-generated artwork.
 
 Source repository: https://github.com/urakkaamyx/KingdomInc_DevSpawner

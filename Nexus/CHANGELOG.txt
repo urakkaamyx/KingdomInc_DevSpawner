@@ -1,3 +1,14 @@
+1.3.0
+- Added a free DevSpawner unlock in Tech Tree > Mods through Foundation.
+- Existing kingdoms with placed Spawners retain access automatically.
+
+1.2.0 - Item picker and gold values
+- Click the + or selected item icon to open a searchable item picker.
+- Select from the full item catalog, including locked items.
+- Shows native gold values at 100% quality before shop bonuses.
+- Non-sellable items are labeled, and hover descriptions show the value.
+- Changing selection clears pending output while preserving the pipe.
+
 1.1.0 - First public release
 - Enables the built-in Spawner in the Resource build menu.
 - Shows the generated item's icon, localized name and hover description.

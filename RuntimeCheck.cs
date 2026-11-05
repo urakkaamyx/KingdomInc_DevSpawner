@@ -16,6 +16,10 @@ using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
+using Assets.Behaviour.UI;
+using GameInput = Assets.Behaviour.Input.PlayerInput;
 
 namespace KingdomDevSpawner
 {
@@ -37,7 +41,9 @@ namespace KingdomDevSpawner
                 var player = new GamePlayer();
                 GamePlayer.Current = player;
                 player.Flows.Add(new FlowDiagram());
-                Check(player.HasTech("dev_item_spawner"), "Spawner technology gate enabled");
+                VerifyFoundationModel(player, Check);
+                player.AddTech(SpawnerResearch);
+                Check(player.HasTech("dev_item_spawner"), "Purchased Foundation research enables native production gate");
                 Check(!player.HasTech("forge"), "Unrelated research remains locked");
                 Check(!player.HasTech(null), "Null technology behavior preserved");
                 Check(TechNode.Get("dev_item_spawner").DevMode, "Developer technology definition preserved");
@@ -59,6 +65,37 @@ namespace KingdomDevSpawner
             }
             catch (Exception ex) { error = ex.ToString(); Logger.LogError(ex); }
             finally { GamePlayer.Current = previous; }
+            if (passed)
+            {
+                passed = false;
+                try
+                {
+                    var fixture = GamePlayer.CreateNewPlayer();
+                    fixture.Flows[0].Elements.Clear(); fixture.Flows[0].Pipes.Clear();
+                    fixture.Flows[0].Elements.Add(new Assets.Source.Flow.Elements.DevSpawner { Position = new Vector2Int(-96, 64) });
+                    SceneManager.LoadScene("Game");
+                }
+                catch (Exception ex) { error = ex.ToString(); Logger.LogError(ex); }
+                if (error == null)
+                {
+                    yield return new WaitForSecondsRealtime(4);
+                    var foundationCheck = VerifyFoundationUI(Check);
+                    while (error == null)
+                    {
+                        bool more = false; object step = null;
+                        try { more = foundationCheck.MoveNext(); if (more) step = foundationCheck.Current; }
+                        catch (Exception ex) { error = ex.ToString(); Logger.LogError(ex); }
+                        if (!more || error != null) break;
+                        yield return step;
+                    }
+                    (foundationCheck as IDisposable)?.Dispose();
+                    if (error == null)
+                    {
+                        try { VerifyPicker(Check); passed = true; }
+                        catch (Exception ex) { error = ex.ToString(); Logger.LogError(ex); }
+                    }
+                }
+            }
             string folder = Path.Combine(Paths.GameRootPath, "_Mods", "DevSpawner", "Verification");
             Directory.CreateDirectory(folder);
             File.WriteAllText(Path.Combine(folder, "runtime-tests.txt"), "passed=" + passed + "\n" + string.Join("\n", checks) + "\n" + error);
@@ -92,7 +129,7 @@ namespace KingdomDevSpawner
                 var unset = new Assets.Source.Flow.Elements.DevSpawner { Position = new Vector2Int(-208, 64) };
                 empty.SetElement(unset);
                 var emptyDisplay = empty.GetComponent<SpawnerDisplay>();
-                check(emptyDisplay.Caption == "Connect an item input", "Unset node displays connection hint");
+                check(emptyDisplay.Caption == "Click + to choose", "Unset node displays clickable picker hint");
                 var selected = Instantiate(prefab, root.transform, false);
                 selected.enabled = false;
                 var model = new Assets.Source.Flow.Elements.DevSpawner { Position = new Vector2Int(16, 64) };
@@ -136,6 +173,115 @@ namespace KingdomDevSpawner
                 camera.targetTexture = null;
                 DestroyImmediate(root); DestroyImmediate(cameraObject); DestroyImmediate(texture);
                 RenderTexture.ReleaseTemporary(target);
+            }
+        }
+
+        void VerifyPicker(Action<bool, string> check)
+        {
+            var model = (Assets.Source.Flow.Elements.DevSpawner)GamePlayer.Current.Flows[0].Elements.Single();
+            check(model.World && GameUI.Instance && EventSystem.current, "Spawner and UI exist in actual game scene");
+            var display = model.World.GetComponent<SpawnerDisplay>();
+            var choose = model.World.GetComponentsInChildren<Button>(true).Single(b => b.name == "SpawnerChooseItem");
+            check(choose.gameObject.activeInHierarchy && choose.interactable && choose.targetGraphic.raycastTarget,
+                "Plus icon is an active clickable button");
+            var click = new PointerEventData(EventSystem.current) { button = PointerEventData.InputButton.Left };
+            Canvas.ForceUpdateCanvases();
+            var iconRect = (RectTransform)choose.transform;
+            var iconCanvas = choose.GetComponentInParent<Canvas>().rootCanvas;
+            click.position = RectTransformUtility.WorldToScreenPoint(iconCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : iconCanvas.worldCamera,
+                iconRect.TransformPoint(iconRect.rect.center));
+            var hits = new List<RaycastResult>(); EventSystem.current.RaycastAll(click, hits);
+            check(hits.Count > 0 && hits[0].gameObject.GetComponentInParent<Button>() == choose, "Actual pointer raycast reaches plus button without overlay obstruction");
+            bool inputBefore = GameInput.Enabled;
+            ExecuteEvents.Execute(choose.gameObject, click, ExecuteEvents.pointerClickHandler);
+            var picker = FindObjectsByType<SpawnerPicker>(FindObjectsSortMode.None).Single();
+            check(picker.gameObject.activeInHierarchy && !GameInput.Enabled, "Clicking plus opens picker and blocks workshop hotkeys");
+            check(picker.MatchCount == ItemType.All.Count, "Picker includes full cheat item catalog including locked items");
+            check(picker.GetComponentsInChildren<Button>(true).Count(b => b.name == "SpawnerItemRow") == 11,
+                "Scrollable catalog uses bounded row pool");
+            check(ItemType.All.All(item => !string.IsNullOrEmpty(SpawnerPicker.ValueText(item))), "All " + ItemType.All.Count + " catalog entries have a value or non-sellable label");
+            var iron = ItemType.Get("iron_ore");
+            check(SpawnerPicker.ValueText(iron) == new InventoryItem(iron).SellValue.ToString("N0") + " gold",
+                "Gold uses native item sell value at 100% quality");
+            check(SpawnerPicker.ValueText(ItemType.Get("fighter")) == "Not sellable", "Non-sellable adventurers are identified correctly");
+            var search = picker.GetComponentInChildren<TMP_InputField>();
+            search.text = "IRON ORE";
+            check(picker.MatchCount > 0 && picker.VisibleItems.Contains(iron), "Typing filters by case-insensitive localized item name");
+            search.text = "no_such_item_987654";
+            check(picker.MatchCount == 0 && !picker.VisibleItems.Any(), "No-match search clears stale clickable rows");
+            search.text = "";
+            check(picker.MatchCount == ItemType.All.Count, "Clearing search restores all items");
+            var firstPage = picker.VisibleItems.ToArray();
+            var scroll = picker.GetComponentInChildren<ScrollRect>();
+            scroll.verticalNormalizedPosition = 0; scroll.onValueChanged.Invoke(Vector2.zero);
+            check(picker.VisibleItems.Any() && !picker.VisibleItems.SequenceEqual(firstPage)
+                && picker.VisibleItems.Contains(ItemType.All.OrderBy(i => Translation.Translate(i.GetDisplayName()), StringComparer.CurrentCultureIgnoreCase).Last()), "Scrolling reaches final catalog item with recycled rows");
+            search.text = "iron ore";
+            var row = picker.GetComponentsInChildren<Button>().Single(b => b.name == "SpawnerItemRow" && b.GetComponentInChildren<TMP_Text>().text == Translation.Translate(iron.GetDisplayName()));
+            ExecuteEvents.Execute(row.gameObject, click, ExecuteEvents.pointerClickHandler);
+            check(model.Item == iron && !picker.gameObject.activeSelf, "Clicking item row selects spawning type and closes picker");
+            check(GameInput.Enabled == inputBefore && display.Caption == Translation.Translate(iron.GetDisplayName()), "Selection restores workshop input and updates node display");
+            model.Update(0);
+            check(model.Outputs[0].BufferedItems.Single().Type == iron, "Chosen item is actually generated by native Spawner");
+            var loaded = (Assets.Source.Flow.Elements.DevSpawner)FlowElement.FromJson(model.ToJson(), GamePlayer.Current.Flows[0]);
+            check(loaded.Item == iron, "Manual selection persists through native save roundtrip");
+            display.OpenPicker();
+            picker.Filter("iron ingot");
+            var ingot = ItemType.Get("iron_ingot");
+            var receiver = new Stockpile();
+            var connection = new FlowPipe(); connection.Connect(model.Outputs[0], receiver.Inputs[0]);
+            picker.Choose(ingot);
+            check(model.Item == ingot && model.Outputs[0].BufferedItems.Count == 0 && model.Outputs[0].ConnectedPipe == connection,
+                "Changing selection clears old pending output and preserves pipe connection");
+            model.Update(0);
+            check(model.Outputs[0].BufferedItems.Single().Type == ingot, "Changed selection produces new item without old buffer blockage");
+            display.SelectItem(ingot);
+            check(model.Outputs[0].BufferedItems.Count == 1, "Selecting same item preserves pending output");
+            display.OpenPicker();
+            picker.GetComponentsInChildren<Button>().Single(b => b.name == "XButton").onClick.Invoke();
+            check(model.Item == ingot && !picker.gameObject.activeSelf && GameInput.Enabled == inputBefore, "Close button cancels without changing item or input state");
+            display.OpenPicker();
+            GameUI.Instance.ProcessEscape();
+            check(!picker.gameObject.activeSelf && model.Item == ingot, "Native Escape handling dismisses picker without selection");
+            display.OpenPicker();
+            search.text = "iron";
+            CapturePicker(picker);
+            picker.ClosePopup();
+        }
+
+        void CapturePicker(SpawnerPicker picker)
+        {
+            var canvas = picker.GetComponent<Canvas>();
+            var oldParent = picker.transform.parent;
+            var oldMode = canvas.renderMode;
+            var oldCamera = canvas.worldCamera;
+            float oldDistance = canvas.planeDistance, oldScale = canvas.scaleFactor;
+            var layers = picker.GetComponentsInChildren<Transform>(true).Select(t => (t, t.gameObject.layer)).ToArray();
+            var cameraObject = new GameObject("SpawnerPickerCapture", typeof(Camera));
+            var camera = cameraObject.GetComponent<Camera>();
+            var target = RenderTexture.GetTemporary(900, 700, 24);
+            var previous = RenderTexture.active;
+            var texture = new Texture2D(900, 700, TextureFormat.RGB24, false);
+            try
+            {
+                camera.clearFlags = CameraClearFlags.SolidColor; camera.backgroundColor = new Color(.08f, .08f, .09f);
+                camera.orthographic = true; camera.orthographicSize = 350; camera.cullingMask = 1 << 31;
+                camera.targetTexture = target;
+                foreach (var entry in layers) entry.t.gameObject.layer = 31;
+                picker.transform.SetParent(null, false);
+                canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = camera; canvas.planeDistance = 10; canvas.scaleFactor = 1;
+                Canvas.ForceUpdateCanvases(); camera.Render();
+                RenderTexture.active = target; texture.ReadPixels(new Rect(0, 0, 900, 700), 0, 0); texture.Apply();
+                var folder = Path.Combine(Paths.GameRootPath, "_Mods", "DevSpawner", "Verification");
+                Directory.CreateDirectory(folder); File.WriteAllBytes(Path.Combine(folder, "spawner-item-picker.png"), texture.EncodeToPNG());
+            }
+            finally
+            {
+                RenderTexture.active = previous; camera.targetTexture = null;
+                canvas.renderMode = oldMode; canvas.worldCamera = oldCamera; canvas.planeDistance = oldDistance; canvas.scaleFactor = oldScale;
+                picker.transform.SetParent(oldParent, false);
+                foreach (var entry in layers) if (entry.t) entry.t.gameObject.layer = entry.layer;
+                DestroyImmediate(cameraObject); DestroyImmediate(texture); RenderTexture.ReleaseTemporary(target);
             }
         }
 

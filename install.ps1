@@ -2,12 +2,14 @@ param([switch]$WaitForExit)
 $ErrorActionPreference = 'Stop'
 $gameRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).Path
 $releaseFolder = Join-Path $PSScriptRoot 'Releases'
-$source = Join-Path $releaseFolder 'DevSpawner-1.1.0.dll'
+[xml]$metadata = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'DevSpawner.csproj') -Raw
+$version = $metadata.Project.PropertyGroup.Version
+$source = Join-Path $releaseFolder ('DevSpawner-' + $version + '.dll')
 $destination = Join-Path $gameRoot 'BepInEx\plugins\DevSpawner\DevSpawner.dll'
 $statusPath = Join-Path $releaseFolder 'installation-status.json'
 $expectedHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash
 function Write-Status([string]$state, [string]$detail) {
-    @{ state = $state; detail = $detail; version = '1.1.0'; sha256 = $expectedHash; updatedAtUtc = [DateTime]::UtcNow.ToString('o') } |
+    @{ state = $state; detail = $detail; version = $version; sha256 = $expectedHash; updatedAtUtc = [DateTime]::UtcNow.ToString('o') } |
         ConvertTo-Json | Set-Content -LiteralPath $statusPath -Encoding UTF8
 }
 function Get-RunningGame {
@@ -27,7 +29,7 @@ try {
     }
     Copy-Item -LiteralPath $source -Destination $destination -Force
     if ((Get-FileHash -Algorithm SHA256 -LiteralPath $destination).Hash -ne $expectedHash) { throw 'Installed DLL checksum does not match staged update.' }
-    Write-Status 'installed' 'DevSpawner 1.1.0 installed and checksum verified. Start Kingdom Inc to use it.'
+    Write-Status 'installed' ('DevSpawner ' + $version + ' installed and checksum verified. Start Kingdom Inc to use it.')
 } catch {
     Write-Status 'failed' $_.Exception.Message
     throw

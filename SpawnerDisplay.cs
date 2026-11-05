@@ -6,6 +6,8 @@ using Behaviour.UI.Tooltip;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using Assets.Behaviour.UI;
 
 namespace KingdomDevSpawner
 {
@@ -17,6 +19,7 @@ namespace KingdomDevSpawner
         ItemType lastItem;
         Translation lastLanguage;
         bool initialized;
+        SpawnerPicker picker;
 
         internal string Caption => caption ? caption.text : null;
 
@@ -50,24 +53,59 @@ namespace KingdomDevSpawner
                 caption.gameObject.SetActive(true);
                 var tooltip = gameObject.AddComponent<TooltipSource>();
                 tooltip.SetSource(gameObject);
+                var icon = (Image)AccessTools.Field(typeof(WorldFlowElement), "_icon").GetValue(world);
+                icon.raycastTarget = true;
+                var choose = icon.GetComponent<Button>() ?? icon.gameObject.AddComponent<Button>();
+                choose.targetGraphic = icon;
+                choose.navigation = new Navigation { mode = Navigation.Mode.None };
+                choose.onClick = new Button.ButtonClickedEvent();
+                choose.onClick.AddListener(OpenPicker);
+                choose.name = "SpawnerChooseItem";
             }
             if (initialized && lastItem == spawner.Item && lastLanguage == Translation.Current) return;
             initialized = true;
             lastItem = spawner.Item;
             lastLanguage = Translation.Current;
-            caption.text = lastItem != null ? Translation.Translate(lastItem.GetDisplayName()) : "Connect an item input";
+            caption.text = lastItem != null ? Translation.Translate(lastItem.GetDisplayName()) : "Click + to choose";
             spawner.Description = GetTooltipText();
             world.UpdateIcon();
         }
 
         public string GetTooltipTitle() => "Spawner";
 
+        public void OpenPicker()
+        {
+            if (!GameUI.Instance || !(world.Element is DevSpawner spawner)) return;
+            if (!picker)
+            {
+                var root = new GameObject("SpawnerItemPicker", typeof(RectTransform));
+                root.SetActive(false);
+                picker = root.AddComponent<SpawnerPicker>();
+                picker.Initialize(this, spawner, caption.font, GameUI.Instance.FilterPopup.transform.parent);
+            }
+            picker.Open();
+        }
+
+        internal void SelectItem(ItemType item)
+        {
+            var spawner = (DevSpawner)world.Element;
+            if (spawner.Item != item)
+            {
+                spawner.Outputs[0].BufferedItems.Clear();
+                spawner.Item = item;
+            }
+            Refresh();
+        }
+
+        void OnDisable() { if (picker && picker.gameObject.activeSelf && GameUI.Instance) picker.ClosePopup(); }
+        void OnDestroy() { if (picker) { if (picker.gameObject.activeSelf && GameUI.Instance) picker.ClosePopup(); Destroy(picker.gameObject); } }
+
         public string GetTooltipText()
         {
             var item = (world?.Element as DevSpawner)?.Item;
             return item != null
-                ? "Produces " + Translation.Translate(item.GetDisplayName()) + "."
-                : "Connect the output to an input that accepts a specific item to choose what to produce.";
+                ? "Produces " + Translation.Translate(item.GetDisplayName()) + ".\n" + SpawnerPicker.ValueText(item) + " at 100% quality, before shop bonuses.\nClick the item icon to choose another item."
+                : "Click + to choose an item and see its gold value, or connect the output to a specific item input.";
         }
     }
 }
