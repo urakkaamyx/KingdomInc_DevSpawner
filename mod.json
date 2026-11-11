@@ -1,0 +1,68 @@
+{
+  "id": "DevSpawner",
+  "name": "DevSpawner",
+  "version": "1.3.0",
+  "author": "Urakka",
+  "description": "Enables Kingdom Inc's native Spawner building to spawn any item with an in-game search picker, item icons, and tooltips.",
+  "repository": {
+    "platform": "GitHub",
+    "owner": "urakkaamyx",
+    "name": "KingdomInc_DevSpawner",
+    "url": "https://github.com/urakkaamyx/KingdomInc_DevSpawner",
+    "branch": "main",
+    "visibility": "public",
+    "topics": [
+      "kingdom-inc",
+      "kingdom-inc-mod",
+      "bepinex",
+      "harmony",
+      "dev-spawner",
+      "cheats",
+      "sandbox"
+    ],
+    "latestTag": "v1.3.0"
+  },
+  "distribution": {
+    "nexus": {
+      "game": "kingdominc",
+      "modId": 13,
+      "fileId": 8306835,
+      "url": "https://www.nexusmods.com/kingdominc/mods/13",
+      "requirements": [
+        {
+          "name": "Foundation",
+          "url": "https://www.nexusmods.com/kingdominc/mods/18",
+          "minimumVersion": "0.11.0",
+          "type": "nexus"
+        },
+        {
+          "name": "BepInEx 5",
+          "url": "https://github.com/BepInEx/BepInEx/releases",
+          "minimumVersion": "5.x",
+          "type": "offsite"
+        }
+      ],
+      "tags": [
+        "AI Media",
+        "AI-Generated Content",
+        "Cheating",
+        "Gameplay"
+      ],
+      "tagsVerified": true,
+      "requirementsVerified": true
+    }
+  },
+  "development": {
+    "framework": "Foundation",
+    "language": "C#",
+    "target": "netstandard2.1",
+    "dependencies": [
+      "BepInEx 5",
+      "Foundation >= 0.11.0"
+    ]
+  },
+  "publishing": {
+    "githubReleases": "https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases/tag/v1.3.0",
+    "nexusMods": "https://www.nexusmods.com/kingdominc/mods/13"
+  }
+}

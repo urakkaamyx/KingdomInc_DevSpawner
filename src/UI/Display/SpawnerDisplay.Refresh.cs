@@ -11,20 +11,8 @@ using Assets.Behaviour.UI;
 
 namespace KingdomDevSpawner
 {
-    public sealed class SpawnerDisplay : MonoBehaviour, ITooltipTitleSource, ITooltipTextSource
+    public sealed partial class SpawnerDisplay : MonoBehaviour, ITooltipTitleSource, ITooltipTextSource
     {
-        static readonly System.Reflection.FieldInfo LabelField = AccessTools.Field(typeof(WorldFlowElement), "_label");
-        WorldFlowElement world;
-        TMP_Text caption;
-        ItemType lastItem;
-        Translation lastLanguage;
-        bool initialized;
-        SpawnerPicker picker;
-
-        internal string Caption => caption ? caption.text : null;
-
-        void LateUpdate() => Refresh();
-
         public void Refresh()
         {
             if (!world) world = GetComponent<WorldFlowElement>();
@@ -69,43 +57,6 @@ namespace KingdomDevSpawner
             caption.text = lastItem != null ? Translation.Translate(lastItem.GetDisplayName()) : "Click + to choose";
             spawner.Description = GetTooltipText();
             world.UpdateIcon();
-        }
-
-        public string GetTooltipTitle() => "Spawner";
-
-        public void OpenPicker()
-        {
-            if (!GameUI.Instance || !(world.Element is DevSpawner spawner)) return;
-            if (!picker)
-            {
-                var root = new GameObject("SpawnerItemPicker", typeof(RectTransform));
-                root.SetActive(false);
-                picker = root.AddComponent<SpawnerPicker>();
-                picker.Initialize(this, spawner, caption.font, GameUI.Instance.FilterPopup.transform.parent);
-            }
-            picker.Open();
-        }
-
-        internal void SelectItem(ItemType item)
-        {
-            var spawner = (DevSpawner)world.Element;
-            if (spawner.Item != item)
-            {
-                spawner.Outputs[0].BufferedItems.Clear();
-                spawner.Item = item;
-            }
-            Refresh();
-        }
-
-        void OnDisable() { if (picker && picker.gameObject.activeSelf && GameUI.Instance) picker.ClosePopup(); }
-        void OnDestroy() { if (picker) { if (picker.gameObject.activeSelf && GameUI.Instance) picker.ClosePopup(); Destroy(picker.gameObject); } }
-
-        public string GetTooltipText()
-        {
-            var item = (world?.Element as DevSpawner)?.Item;
-            return item != null
-                ? "Produces " + Translation.Translate(item.GetDisplayName()) + ".\n" + SpawnerPicker.ValueText(item) + " at 100% quality, before shop bonuses.\nClick the item icon to choose another item."
-                : "Click + to choose an item and see its gold value, or connect the output to a specific item input.";
         }
     }
 }
