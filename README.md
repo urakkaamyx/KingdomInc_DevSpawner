@@ -2,7 +2,7 @@
 
 **Current release: 1.3.1 — for Kingdom Inc game version 1.0.14.**
 
-[GitHub releases](https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/13) · Version 1.3.1
+[GitHub releases](https://github.com/KingdomIncModding/KingdomInc_DevSpawner/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/13) · Version 1.3.1
 
 Enable Kingdom Inc's native Spawner building to spawn any item without production inputs. This is a cheat utility designed for testing, sandbox experimentation, and blueprint design.
 
@@ -55,4 +55,4 @@ Close the game and delete `BepInEx/plugins/DevSpawner/`. Existing Spawners will 
 
 ## Credits and Source
 
-Created by **Urakka** (rockyamyx). [Source code on GitHub](https://github.com/urakkaamyx/KingdomInc_DevSpawner). Game artwork belongs to its respective owners.
+Created by **Urakka** (rockyamyx). [Source code on GitHub](https://github.com/KingdomIncModding/KingdomInc_DevSpawner). Game artwork belongs to its respective owners.

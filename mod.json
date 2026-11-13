@@ -6,9 +6,9 @@
   "description": "For Kingdom Inc game version 1.0.14. Enables Kingdom Inc's native Spawner building to spawn any item with an in-game search picker, item icons, and tooltips.",
   "repository": {
     "platform": "GitHub",
-    "owner": "urakkaamyx",
+    "owner": "KingdomIncModding",
     "name": "KingdomInc_DevSpawner",
-    "url": "https://github.com/urakkaamyx/KingdomInc_DevSpawner",
+    "url": "https://github.com/KingdomIncModding/KingdomInc_DevSpawner",
     "branch": "main",
     "visibility": "public",
     "topics": [
@@ -64,7 +64,7 @@
     "gameIntegration": "Foundation"
   },
   "publishing": {
-    "githubReleases": "https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases/tag/v1.3.0",
+    "githubReleases": "https://github.com/KingdomIncModding/KingdomInc_DevSpawner/releases/tag/v1.3.0",
     "nexusMods": "https://www.nexusmods.com/kingdominc/mods/13",
     "archivePreviousReleases": false
   }
