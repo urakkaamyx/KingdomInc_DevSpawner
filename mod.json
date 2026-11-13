@@ -1,9 +1,9 @@
 {
   "id": "DevSpawner",
   "name": "DevSpawner",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": "Urakka",
-  "description": "Enables Kingdom Inc's native Spawner building to spawn any item with an in-game search picker, item icons, and tooltips.",
+  "description": "For Kingdom Inc game version 1.0.14. Enables Kingdom Inc's native Spawner building to spawn any item with an in-game search picker, item icons, and tooltips.",
   "repository": {
     "platform": "GitHub",
     "owner": "urakkaamyx",
@@ -32,7 +32,7 @@
         {
           "name": "Foundation",
           "url": "https://www.nexusmods.com/kingdominc/mods/18",
-          "minimumVersion": "0.11.0",
+          "minimumVersion": "0.14.0",
           "type": "nexus"
         },
         {
@@ -49,7 +49,8 @@
         "Gameplay"
       ],
       "tagsVerified": true,
-      "requirementsVerified": true
+      "requirementsVerified": true,
+      "runtimeVersionId": "46785078755454"
     }
   },
   "development": {
@@ -58,11 +59,13 @@
     "target": "netstandard2.1",
     "dependencies": [
       "BepInEx 5",
-      "Foundation >= 0.11.0"
-    ]
+      "Foundation 0.14.0"
+    ],
+    "gameIntegration": "Foundation"
   },
   "publishing": {
     "githubReleases": "https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases/tag/v1.3.0",
-    "nexusMods": "https://www.nexusmods.com/kingdominc/mods/13"
+    "nexusMods": "https://www.nexusmods.com/kingdominc/mods/13",
+    "archivePreviousReleases": false
   }
 }

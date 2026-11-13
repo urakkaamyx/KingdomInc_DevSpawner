@@ -1,6 +1,8 @@
 # DevSpawner
 
-[GitHub releases](https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/13) · Version 1.3.0
+**Current release: 1.3.1 — for Kingdom Inc game version 1.0.14.**
+
+[GitHub releases](https://github.com/urakkaamyx/KingdomInc_DevSpawner/releases) · [Nexus Mods](https://www.nexusmods.com/kingdominc/mods/13) · Version 1.3.1
 
 Enable Kingdom Inc's native Spawner building to spawn any item without production inputs. This is a cheat utility designed for testing, sandbox experimentation, and blueprint design.
 
@@ -27,12 +29,12 @@ Enable Kingdom Inc's native Spawner building to spawn any item without productio
 
 - Kingdom Inc (Windows x64 Mono)
 - [BepInEx 5](https://github.com/BepInEx/BepInEx/releases/tag/v5.4.23.6) (5.4.23.6 or newer)
-- [Foundation](https://www.nexusmods.com/kingdominc/mods/18) (0.11.0 or newer)
+- [Foundation](https://www.nexusmods.com/kingdominc/mods/18) (0.14.0 or newer)
 
 ## Installation
 
 1. Install BepInEx 5 for Kingdom Inc.
-2. Install Foundation (0.11.0 or newer).
+2. Install Foundation (0.14.0 or newer).
 3. Extract the release ZIP into your Kingdom Inc game directory.
 4. Verify the file exists at `BepInEx/plugins/DevSpawner/DevSpawner.dll`.
 5. Launch the game and unlock DevSpawner in Tech Tree > Mods!
@@ -41,11 +43,11 @@ Enable Kingdom Inc's native Spawner building to spawn any item without productio
 
 | Class.Method | Hook Type | Impact |
 |---|---|---|
-| GamePlayer.HasTech | Harmony Postfix | Unlocks the native Spawner building when the DevSpawner research is completed. |
-| GamePlayer.FromJson | Harmony Postfix | Ensures existing placed Spawners retain their functional unlocks across loaded saves. |
-| WorldFlowElement.SetElement | Harmony Postfix | Attaches interactive item selection UI, item icons, and tooltips to placed Spawner nodes. |
-| DevSpawner.IconName (getter) | Harmony Postfix | Displays the selected item's icon on the Spawner node dynamically. |
-| DevSpawner..ctor | Harmony Postfix | Links the Spawner building prerequisite to the modded DevSpawner tech. |
+| GamePlayer.HasTech | Foundation hook (postfix) | Unlocks the native Spawner building when the DevSpawner research is completed. |
+| GamePlayer.FromJson | Foundation hook (postfix) | Ensures existing placed Spawners retain their functional unlocks across loaded saves. |
+| WorldFlowElement.SetElement | Foundation hook (postfix) | Attaches interactive item selection UI, item icons, and tooltips to placed Spawner nodes. |
+| DevSpawner.IconName (getter) | Foundation hook (postfix) | Displays the selected item's icon on the Spawner node dynamically. |
+| DevSpawner..ctor | Foundation hook (postfix) | Links the Spawner building prerequisite to the modded DevSpawner tech. |
 
 ## Removal
 
