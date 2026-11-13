@@ -7,8 +7,8 @@
   "repository": {
     "platform": "GitHub",
     "owner": "KingdomIncModding",
-    "name": "KingdomInc_DevSpawner",
-    "url": "https://github.com/KingdomIncModding/KingdomInc_DevSpawner",
+    "name": "DevSpawner",
+    "url": "https://github.com/KingdomIncModding/DevSpawner",
     "branch": "main",
     "visibility": "public",
     "topics": [
@@ -64,7 +64,7 @@
     "gameIntegration": "Foundation"
   },
   "publishing": {
-    "githubReleases": "https://github.com/KingdomIncModding/KingdomInc_DevSpawner/releases/tag/v1.3.0",
+    "githubReleases": "https://github.com/KingdomIncModding/DevSpawner/releases/tag/v1.3.0",
     "nexusMods": "https://www.nexusmods.com/kingdominc/mods/13",
     "archivePreviousReleases": false
   }
